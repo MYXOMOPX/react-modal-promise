@@ -8,7 +8,8 @@ class ModalFactory extends PureComponent {
 
     this.state = {
       modals: {},
-      hashStack: []
+      hashStack: [],
+      layers: [],
     }
     this.defaultOptions = {
       exitTimeout: 500,
@@ -17,9 +18,7 @@ class ModalFactory extends PureComponent {
   }
 
   getModals = () => {
-    const keys = Object.keys(this.state.modals)
-
-    const mapKeys = keys.map(key => {
+    const mapKeys = this.state.layers.map(key => {
       const { Component, props, resolve } = this.state.modals[key]
 
       return (
@@ -53,7 +52,8 @@ class ModalFactory extends PureComponent {
             ...resultOptions
           },
           ...this.state.modals
-        }
+        },
+        layers: [...this.state.layers,hash]
       }, () => {
         setTimeout(() => {
           this.setState({ hashStack: [ ...this.state.hashStack, hash ] })
@@ -73,8 +73,10 @@ class ModalFactory extends PureComponent {
   }
 
   omitState = hash => {
+    const updatedLayers = this.state.layers.slice();
+    updatedLayers.splice(updatedLayers.indexOf(hash),1);
     const { [hash]:_ , ...modals } = this.state.modals
-    this.setState({ modals })
+    this.setState({ modals, layers:updatedLayers })
   }
 
   render() {
